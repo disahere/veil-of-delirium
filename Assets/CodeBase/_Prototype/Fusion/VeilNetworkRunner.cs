@@ -7,7 +7,7 @@ namespace CodeBase._Prototype.Fusion
 {
     public class VeilNetworkRunner : MonoBehaviour, INetworkRunnerCallbacks
     {
-        [SerializeField] GameMode gameMode = GameMode.Shared;
+        [SerializeField] GameMode gameMode = GameMode.Shared; // поменять тип после локал тестов
         
         [Space]
         [SerializeField] NetworkObject playerPrefab;
@@ -27,7 +27,7 @@ namespace CodeBase._Prototype.Fusion
                 SessionName = _sessionName
             });
 
-            if (_runner.IsSharedModeMasterClient)
+            if (_runner.IsSharedModeMasterClient) // вынести в модуль
             {
                 _ = _runner.LoadScene(Constants.TestSceneName);
             }

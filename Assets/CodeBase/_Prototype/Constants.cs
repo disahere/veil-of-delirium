@@ -4,10 +4,10 @@ namespace CodeBase._Prototype
   {
     #region Scene Names
 
-    public const string BootstrapSceneName = "Bootstap";
-    public const string MenuSceneName = "Menu";
-    public const string HubSceneName = "Hub";
-    public const string TestSceneName = "Test";
+    public const string BootstrapSceneName = "Bootstap"; // инит сцена, по сути 0 сцена
+    public const string MenuSceneName = "Menu"; // нужна будет на демке
+    public const string HubSceneName = "Hub"; // лобак, попдаем сюда после успешного подключения к серваку
+    public const string TestSceneName = "Test"; // тут основные механики для тевстов
 
     #endregion
 
