@@ -1,0 +1,57 @@
+# Unity generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+MemoryCaptures/
+
+# Crash & profiling
+*.stacktrace
+*.meminfo
+*.perf-report
+*.pidb.meta
+
+# Rider / VS / VSCode / JetBrains
+.vscode/
+.idea/
+*.sln
+*.csproj
+*.unityproj
+*.user
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Unity cache
+/[Uu]serSettings/
+.sysinfo
+
+# Local packages / downloads (оставим Packages/, но игнорим кэш)
+[Oo]bj.meta
+[Ll]ibrary.meta
+[Tt]emp.meta
+
+# Build artifacts
+*.apk
+*.aab
+*.xcodeproj
+*.xcworkspace
+*.app
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Logs
+*.log
