@@ -11,6 +11,11 @@ namespace CodeBase._Prototype.Movement
     [Header("Camera")]
     [SerializeField] Camera playerCamera;
     [SerializeField] Transform cameraRoot;
+
+    [Header("Visual")]
+    [SerializeField] Transform visualRoot;
+
+    [Header("Mouse Look")]
     [SerializeField] float mouseSensitivity = 0.1f;
     [SerializeField] float minPitch = -80f;
     [SerializeField] float maxPitch = 80f;
@@ -26,6 +31,9 @@ namespace CodeBase._Prototype.Movement
     {
       _controller = GetComponent<CharacterController>();
 
+      if (visualRoot == null)
+        visualRoot = transform;
+
       if (Object.HasInputAuthority)
       {
         if (playerCamera != null)
@@ -38,15 +46,15 @@ namespace CodeBase._Prototype.Movement
         _input.Player.Enable();
 
         _input.Player.Move.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
-        _input.Player.Move.canceled += _ => _moveInput = Vector2.zero;
+        _input.Player.Move.canceled  += _ => _moveInput = Vector2.zero;
 
         _input.Player.Look.performed += ctx => _lookInput = ctx.ReadValue<Vector2>();
-        _input.Player.Look.canceled += _ => _lookInput = Vector2.zero;
+        _input.Player.Look.canceled  += _ => _lookInput = Vector2.zero;
 
         Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        Cursor.visible   = false;
 
-        Vector3 e = transform.eulerAngles;
+        Vector3 e = visualRoot.eulerAngles;
         _yaw   = e.y;
         _pitch = 0f;
       }
@@ -74,12 +82,18 @@ namespace CodeBase._Prototype.Movement
     {
       if (!Object.HasInputAuthority || _controller == null)
         return;
+      
+      Vector3 rootEuler = transform.eulerAngles;
+      rootEuler.y = visualRoot.eulerAngles.y;
+      transform.eulerAngles = rootEuler;
 
-      Vector3 input = new Vector3(_moveInput.x, 0f, _moveInput.y);
-      if (input.sqrMagnitude > 1f)
-        input.Normalize();
+      Vector3 worldInput = new Vector3(_moveInput.x, 0f, _moveInput.y);
+      if (worldInput.sqrMagnitude > 1f)
+        worldInput.Normalize();
 
-      Vector3 move = transform.TransformDirection(input) * moveSpeed * Runner.DeltaTime;
+      Vector3 localMove = transform.TransformDirection(worldInput);
+      Vector3 move      = localMove * moveSpeed * Runner.DeltaTime;
+
       _controller.Move(move);
     }
 
@@ -93,19 +107,19 @@ namespace CodeBase._Prototype.Movement
 
     void HandleLook()
     {
-      if (cameraRoot == null)
+      if (visualRoot == null || cameraRoot == null)
         return;
 
       float mouseX = _lookInput.x * mouseSensitivity;
       float mouseY = _lookInput.y * mouseSensitivity;
-      
+
       _yaw   += mouseX;
       _pitch -= mouseY;
       _pitch  = Mathf.Clamp(_pitch, minPitch, maxPitch);
       
-      Vector3 bodyEuler = transform.eulerAngles;
-      bodyEuler.y = _yaw;
-      transform.eulerAngles = bodyEuler;
+      Vector3 visualEuler = visualRoot.eulerAngles;
+      visualEuler.y = _yaw;
+      visualRoot.eulerAngles = visualEuler;
       
       Vector3 camEuler = cameraRoot.localEulerAngles;
       camEuler.x = _pitch;
