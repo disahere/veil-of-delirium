@@ -170,6 +170,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CodeBase._Prototype.Movement.VeilPlayerController
   moveSpeed: 5
+  playerCamera: {fileID: 4014965708573372496}
+  cameraRoot: {fileID: 5696472217886391020}
+  mouseSensitivity: 0.1
+  minPitch: -80
+  maxPitch: 80
 --- !u!1 &3740235883186509853
 GameObject:
   m_ObjectHideFlags: 0
@@ -188,7 +193,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5655760169992597480
 Transform:
   m_ObjectHideFlags: 0
