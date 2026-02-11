@@ -34,16 +34,15 @@ namespace CodeBase._Prototype.Movement
       }
     }
 
-    void Update()
+    public override void FixedUpdateNetwork()
     {
       if (!Object.HasInputAuthority) return;
 
       Vector3 input = new Vector3(_moveInput.x, 0f, _moveInput.y);
-      if (input.sqrMagnitude > 1f)
-        input.Normalize();
+      if (input.sqrMagnitude > 1f) input.Normalize();
 
-      Vector3 move = transform.TransformDirection(input) * moveSpeed;
-      _controller.Move(move * Time.deltaTime);
+      Vector3 move = transform.TransformDirection(input) * moveSpeed * Runner.DeltaTime;
+      _controller.Move(move);
     }
   }
 }

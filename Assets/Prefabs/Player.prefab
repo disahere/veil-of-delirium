@@ -105,7 +105,7 @@ CharacterController:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -170,13 +170,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CodeBase._Prototype.Movement.VeilPlayerController
   moveSpeed: 5
-  sprintMultiplier: 1.5
-  gravity: -20
-  jumpHeight: 1.2
-  cameraRoot: {fileID: 5696472217886391020}
-  mouseSensitivity: 1.5
-  minPitch: -80
-  maxPitch: 80
 --- !u!1 &3740235883186509853
 GameObject:
   m_ObjectHideFlags: 0

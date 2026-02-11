@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 076cb302250c44b3cb97eee776735ff8
+guid: 4fcd56d3727c44c2b8b49590140d6c90
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -9,6 +9,6 @@ ScriptedImporter:
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 8404be70184654265930450def6a9037, type: 3}
   generateWrapperCode: 1
-  wrapperCodePath: Assets/CodeBase/_Prototype/Input/VeilInputActions.cs
-  wrapperClassName: VeilInputActions
+  wrapperCodePath: 
+  wrapperClassName: 
   wrapperCodeNamespace: 
