@@ -12,27 +12,27 @@ namespace CodeBase._Prototype.Movement
     [SerializeField] Camera playerCamera;
     [SerializeField] Transform cameraRoot;
 
-    [Header("Visual")]
-    [SerializeField] Transform visualRoot;
-
     [Header("Mouse Look")]
     [SerializeField] float mouseSensitivity = 0.1f;
     [SerializeField] float minPitch = -80f;
     [SerializeField] float maxPitch = 80f;
 
+    [Header("Movement")]
+    [SerializeField] float gravity = -20f;
+    [SerializeField] float jumpHeight = 1.5f;
+
     CharacterController _controller;
     VeilInputActions _input;
     Vector2 _moveInput;
     Vector2 _lookInput;
+    bool _jumpPressed;
     float _pitch;
     float _yaw;
+    float _verticalVelocity;
 
     public override void Spawned()
     {
       _controller = GetComponent<CharacterController>();
-
-      if (visualRoot == null)
-        visualRoot = transform;
 
       if (Object.HasInputAuthority)
       {
@@ -51,10 +51,12 @@ namespace CodeBase._Prototype.Movement
         _input.Player.Look.performed += ctx => _lookInput = ctx.ReadValue<Vector2>();
         _input.Player.Look.canceled  += _ => _lookInput = Vector2.zero;
 
+        _input.Player.Jump.performed += _ => _jumpPressed = true;
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible   = false;
 
-        Vector3 e = visualRoot.eulerAngles;
+        Vector3 e = transform.eulerAngles;
         _yaw   = e.y;
         _pitch = 0f;
       }
@@ -83,18 +85,36 @@ namespace CodeBase._Prototype.Movement
       if (!Object.HasInputAuthority || _controller == null)
         return;
       
-      Vector3 rootEuler = transform.eulerAngles;
-      rootEuler.y = visualRoot.eulerAngles.y;
-      transform.eulerAngles = rootEuler;
+      Quaternion yawRot = Quaternion.Euler(0f, _yaw, 0f);
 
       Vector3 worldInput = new Vector3(_moveInput.x, 0f, _moveInput.y);
       if (worldInput.sqrMagnitude > 1f)
         worldInput.Normalize();
 
-      Vector3 localMove = transform.TransformDirection(worldInput);
-      Vector3 move      = localMove * moveSpeed * Runner.DeltaTime;
+      Vector3 localMove = yawRot * worldInput;
+      Vector3 velocity  = localMove * moveSpeed;
 
-      _controller.Move(move);
+      if (_controller.isGrounded)
+      {
+        if (_verticalVelocity < 0f)
+          _verticalVelocity = -1f;
+
+        if (_jumpPressed)
+        {
+          _jumpPressed = false;
+          _verticalVelocity = Mathf.Sqrt(-2f * gravity * jumpHeight);
+        }
+      }
+      else
+      {
+        _verticalVelocity += gravity * Runner.DeltaTime;
+      }
+
+      velocity.y = _verticalVelocity;
+
+      _controller.Move(velocity * Runner.DeltaTime);
+
+      _jumpPressed = false;
     }
 
     void Update()
@@ -103,24 +123,34 @@ namespace CodeBase._Prototype.Movement
         return;
 
       HandleLook();
+      HandleCameraPitch();
+    }
+
+    void LateUpdate()
+    {
+      if (!Object.HasInputAuthority)
+        return;
+      
+      Vector3 e = transform.eulerAngles;
+      e.y = _yaw;
+      transform.rotation = Quaternion.Euler(e);
     }
 
     void HandleLook()
     {
-      if (visualRoot == null || cameraRoot == null)
-        return;
-
       float mouseX = _lookInput.x * mouseSensitivity;
       float mouseY = _lookInput.y * mouseSensitivity;
 
       _yaw   += mouseX;
       _pitch -= mouseY;
       _pitch  = Mathf.Clamp(_pitch, minPitch, maxPitch);
-      
-      Vector3 visualEuler = visualRoot.eulerAngles;
-      visualEuler.y = _yaw;
-      visualRoot.eulerAngles = visualEuler;
-      
+    }
+
+    void HandleCameraPitch()
+    {
+      if (cameraRoot == null)
+        return;
+
       Vector3 camEuler = cameraRoot.localEulerAngles;
       camEuler.x = _pitch;
       cameraRoot.localEulerAngles = camEuler;
