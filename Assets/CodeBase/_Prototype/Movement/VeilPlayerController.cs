@@ -6,7 +6,16 @@ namespace CodeBase._Prototype.Movement
 {
   public class VeilPlayerController : NetworkBehaviour
   {
-    [SerializeField] float moveSpeed = 5f;
+    [Header("Movement")]
+    [SerializeField] float walkSpeed = 5f;
+    [SerializeField] float sprintSpeed = 8f;
+    [SerializeField] float gravity = -20f;
+    [SerializeField] float jumpHeight = 1.5f;
+
+    [Header("Crouch")]
+    [SerializeField] float crouchHeightFactor = 0.6f;
+    [SerializeField] float crouchLerpSpeed = 12f;
+    [SerializeField] float crouchCameraOffset = -0.4f;
 
     [Header("Camera")]
     [SerializeField] Camera playerCamera;
@@ -17,18 +26,20 @@ namespace CodeBase._Prototype.Movement
     [SerializeField] float minPitch = -80f;
     [SerializeField] float maxPitch = 80f;
 
-    [Header("Movement")]
-    [SerializeField] float gravity = -20f;
-    [SerializeField] float jumpHeight = 1.5f;
-
     CharacterController _controller;
     VeilInputActions _input;
     Vector2 _moveInput;
     Vector2 _lookInput;
     bool _jumpPressed;
+    bool _isSprinting;
+    bool _isCrouching;
     float _pitch;
     float _yaw;
     float _verticalVelocity;
+    
+    float _standHeight;
+    Vector3 _standCenter;
+    float _standCameraY;
 
     public override void Spawned()
     {
@@ -45,13 +56,18 @@ namespace CodeBase._Prototype.Movement
         _input = new VeilInputActions();
         _input.Player.Enable();
 
-        _input.Player.Move.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
-        _input.Player.Move.canceled  += _ => _moveInput = Vector2.zero;
+        _input.Player.Move.performed   += ctx => _moveInput = ctx.ReadValue<Vector2>();
+        _input.Player.Move.canceled    += _ => _moveInput = Vector2.zero;
 
-        _input.Player.Look.performed += ctx => _lookInput = ctx.ReadValue<Vector2>();
-        _input.Player.Look.canceled  += _ => _lookInput = Vector2.zero;
+        _input.Player.Look.performed   += ctx => _lookInput = ctx.ReadValue<Vector2>();
+        _input.Player.Look.canceled    += _ => _lookInput = Vector2.zero;
 
-        _input.Player.Jump.performed += _ => _jumpPressed = true;
+        _input.Player.Jump.performed   += _ => _jumpPressed = true;
+
+        _input.Player.Sprint.performed += _ => _isSprinting = true;
+        _input.Player.Sprint.canceled  += _ => _isSprinting = false;
+
+        _input.Player.Crouch.performed += _ => _isCrouching = !_isCrouching;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible   = false;
@@ -59,6 +75,14 @@ namespace CodeBase._Prototype.Movement
         Vector3 e = transform.eulerAngles;
         _yaw   = e.y;
         _pitch = 0f;
+        
+        _standHeight = _controller.height;
+        _standCenter = _controller.center;
+
+        if (cameraRoot != null)
+        {
+          _standCameraY = cameraRoot.localPosition.y;
+        }
       }
       else
       {
@@ -84,22 +108,24 @@ namespace CodeBase._Prototype.Movement
     {
       if (!Object.HasInputAuthority || _controller == null)
         return;
-      
+
       Quaternion yawRot = Quaternion.Euler(0f, _yaw, 0f);
 
       Vector3 worldInput = new Vector3(_moveInput.x, 0f, _moveInput.y);
       if (worldInput.sqrMagnitude > 1f)
         worldInput.Normalize();
 
+      float speed = _isSprinting && !_isCrouching ? sprintSpeed : walkSpeed * (_isCrouching ? 0.5f : 1f);
+
       Vector3 localMove = yawRot * worldInput;
-      Vector3 velocity  = localMove * moveSpeed;
+      Vector3 velocity  = localMove * speed;
 
       if (_controller.isGrounded)
       {
         if (_verticalVelocity < 0f)
           _verticalVelocity = -1f;
 
-        if (_jumpPressed)
+        if (_jumpPressed && !_isCrouching)
         {
           _jumpPressed = false;
           _verticalVelocity = Mathf.Sqrt(-2f * gravity * jumpHeight);
@@ -124,13 +150,14 @@ namespace CodeBase._Prototype.Movement
 
       HandleLook();
       HandleCameraPitch();
+      HandleCrouchSmoothing();
     }
 
     void LateUpdate()
     {
       if (!Object.HasInputAuthority)
         return;
-      
+
       Vector3 e = transform.eulerAngles;
       e.y = _yaw;
       transform.rotation = Quaternion.Euler(e);
@@ -154,6 +181,25 @@ namespace CodeBase._Prototype.Movement
       Vector3 camEuler = cameraRoot.localEulerAngles;
       camEuler.x = _pitch;
       cameraRoot.localEulerAngles = camEuler;
+    }
+
+    void HandleCrouchSmoothing()
+    {
+      if (_controller == null || cameraRoot == null)
+        return;
+
+      float targetHeight = _isCrouching ? _standHeight * crouchHeightFactor : _standHeight;
+      float targetCamY   = _isCrouching ? _standCameraY + crouchCameraOffset : _standCameraY;
+
+      _controller.height = Mathf.Lerp(_controller.height, targetHeight, crouchLerpSpeed * Time.deltaTime);
+
+      Vector3 center = _controller.center;
+      center.y = Mathf.Lerp(center.y, (_standCenter.y / _standHeight) * _controller.height, crouchLerpSpeed * Time.deltaTime);
+      _controller.center = center;
+
+      Vector3 camPos = cameraRoot.localPosition;
+      camPos.y = Mathf.Lerp(camPos.y, targetCamY, crouchLerpSpeed * Time.deltaTime);
+      cameraRoot.localPosition = camPos;
     }
   }
 }

@@ -152,14 +152,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e24d02c5b394c3e9c6f612f92ab5a44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CodeBase._Prototype.Movement.VeilPlayerController
-  moveSpeed: 5
+  walkSpeed: 5
+  sprintSpeed: 9
+  gravity: -20
+  jumpHeight: 1
+  crouchHeightFactor: 0.8
+  crouchLerpSpeed: 10
+  crouchCameraOffset: -0.4
   playerCamera: {fileID: 4014965708573372496}
   cameraRoot: {fileID: 5696472217886391020}
-  mouseSensitivity: 0.1
+  mouseSensitivity: 0.15
   minPitch: -80
   maxPitch: 80
-  gravity: -20
-  jumpHeight: 1.5
 --- !u!114 &846673888844628474
 MonoBehaviour:
   m_ObjectHideFlags: 0
