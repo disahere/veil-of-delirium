@@ -1,3 +1,4 @@
+// Assets/CodeBase/_Prototype/Movement/VeilPlayerController.cs
 using Fusion;
 using UnityEngine;
 
@@ -6,6 +7,7 @@ namespace CodeBase._Prototype.Movement
   public class VeilPlayerController : NetworkBehaviour
   {
     [SerializeField] float moveSpeed = 5f;
+    [SerializeField] float remoteLerpSpeed = 15f;
 
     [Header("Camera")]
     [SerializeField] Camera playerCamera;
@@ -19,6 +21,10 @@ namespace CodeBase._Prototype.Movement
     Vector2 _moveInput;
     Vector2 _lookInput;
     float _pitch;
+    float _localYaw;
+
+    [Networked] Vector3 NetPosition { get; set; }
+    [Networked] float NetYaw { get; set; }
 
     public override void Spawned()
     {
@@ -43,6 +49,12 @@ namespace CodeBase._Prototype.Movement
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        _localYaw   = transform.eulerAngles.y;
+        NetPosition = transform.position;
+        NetYaw      = _localYaw;
+
+        Debug.Log($"[VeilPlayerController] Spawned with input authority: {Object.InputAuthority}");
       }
       else
       {
@@ -66,17 +78,45 @@ namespace CodeBase._Prototype.Movement
 
     public override void FixedUpdateNetwork()
     {
-      if (!Object.HasInputAuthority || _controller == null)
+      if (Object.HasInputAuthority)
+      {
+        HandleMovementLocal();
+        UpdateNetworkState();
+      }
+      else
+      {
+        ApplyNetworkStateRemote();
+      }
+    }
+
+    void HandleMovementLocal()
+    {
+      if (_controller == null)
         return;
-      
+
       Vector3 worldInput = new Vector3(_moveInput.x, 0f, _moveInput.y);
       if (worldInput.sqrMagnitude > 1f)
         worldInput.Normalize();
-      
+
       Vector3 localMove = transform.TransformDirection(worldInput);
       Vector3 move = localMove * moveSpeed * Runner.DeltaTime;
 
       _controller.Move(move);
+    }
+
+    void UpdateNetworkState()
+    {
+      NetPosition = transform.position;
+      NetYaw      = _localYaw;
+    }
+
+    void ApplyNetworkStateRemote()
+    {
+      transform.position = Vector3.Lerp(transform.position, NetPosition, remoteLerpSpeed * Runner.DeltaTime);
+
+      Vector3 euler = transform.eulerAngles;
+      euler.y = NetYaw;
+      transform.eulerAngles = euler;
     }
 
     void Update()
@@ -84,25 +124,29 @@ namespace CodeBase._Prototype.Movement
       if (!Object.HasInputAuthority)
         return;
 
-      HandleLook();
+      HandleLookLocal();
     }
 
-    void HandleLook()
+    void HandleLookLocal()
     {
       if (cameraRoot == null)
         return;
 
       float mouseX = _lookInput.x * mouseSensitivity;
       float mouseY = _lookInput.y * mouseSensitivity;
-      
-      transform.Rotate(Vector3.up, mouseX);
-      
+
+      _localYaw += mouseX;
+
+      Vector3 bodyEuler = transform.eulerAngles;
+      bodyEuler.y = _localYaw;
+      transform.eulerAngles = bodyEuler;
+
       _pitch -= mouseY;
       _pitch = Mathf.Clamp(_pitch, minPitch, maxPitch);
 
-      Vector3 euler = cameraRoot.localEulerAngles;
-      euler.x = _pitch;
-      cameraRoot.localEulerAngles = euler;
+      Vector3 camEuler = cameraRoot.localEulerAngles;
+      camEuler.x = _pitch;
+      cameraRoot.localEulerAngles = camEuler;
     }
   }
 }

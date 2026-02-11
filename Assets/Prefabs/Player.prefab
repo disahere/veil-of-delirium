@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 5819255563238750672}
   - component: {fileID: 7496277027247117531}
   - component: {fileID: 2042800683493080806}
-  - component: {fileID: 1537468952249185368}
   - component: {fileID: 2059634436901354460}
+  - component: {fileID: 298495622412757253}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -137,10 +137,29 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 1537468952249185368}
   - {fileID: 2059634436901354460}
+  - {fileID: 298495622412757253}
   ForceRemoteRenderTimeframe: 0
---- !u!114 &1537468952249185368
+--- !u!114 &2059634436901354460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1874028211201766250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e24d02c5b394c3e9c6f612f92ab5a44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CodeBase._Prototype.Movement.VeilPlayerController
+  moveSpeed: 5
+  remoteLerpSpeed: 15
+  playerCamera: {fileID: 4014965708573372496}
+  cameraRoot: {fileID: 5696472217886391020}
+  mouseSensitivity: 0.1
+  minPitch: -80
+  maxPitch: 80
+--- !u!114 &298495622412757253
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -157,24 +176,6 @@ MonoBehaviour:
   SyncParent: 0
   _autoAOIOverride: 1
   DisableSharedModeInterpolation: 0
---- !u!114 &2059634436901354460
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1874028211201766250}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e24d02c5b394c3e9c6f612f92ab5a44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CodeBase._Prototype.Movement.VeilPlayerController
-  moveSpeed: 5
-  playerCamera: {fileID: 4014965708573372496}
-  cameraRoot: {fileID: 5696472217886391020}
-  mouseSensitivity: 0.1
-  minPitch: -80
-  maxPitch: 80
 --- !u!1 &3740235883186509853
 GameObject:
   m_ObjectHideFlags: 0

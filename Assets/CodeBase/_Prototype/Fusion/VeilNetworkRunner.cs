@@ -1,3 +1,4 @@
+// Assets/CodeBase/_Prototype/Fusion/VeilNetworkRunner.cs
 using System.Collections.Generic;
 using Fusion;
 using Fusion.Sockets;
@@ -34,11 +35,15 @@ namespace CodeBase._Prototype.Fusion
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-      Debug.Log($"OnPlayerJoined {player}, IsServer={runner.IsServer}, IsMaster={runner.IsSharedModeMasterClient}");
+      Debug.Log($"OnPlayerJoined {player}, LocalPlayer={runner.LocalPlayer}, IsServer={runner.IsServer}, IsMaster={runner.IsSharedModeMasterClient}");
 
-      if (runner.IsSharedModeMasterClient)
+      // В Shared режиме каждый Runner спавнит ТОЛЬКО своего локального игрока
+      if (player == runner.LocalPlayer)
       {
-        runner.Spawn(playerPrefab, Vector3.zero, Quaternion.identity, player);
+        Vector3 spawnPos = Vector3.zero;
+        Quaternion spawnRot = Quaternion.identity;
+
+        runner.Spawn(playerPrefab, spawnPos, spawnRot, player);
       }
     }
 
