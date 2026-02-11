@@ -36,8 +36,7 @@ namespace CodeBase._Prototype.Fusion
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
       Debug.Log($"OnPlayerJoined {player}, LocalPlayer={runner.LocalPlayer}, IsServer={runner.IsServer}, IsMaster={runner.IsSharedModeMasterClient}");
-
-      // В Shared режиме каждый Runner спавнит ТОЛЬКО своего локального игрока
+      
       if (player == runner.LocalPlayer)
       {
         Vector3 spawnPos = Vector3.zero;

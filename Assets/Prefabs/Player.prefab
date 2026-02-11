@@ -153,7 +153,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CodeBase._Prototype.Movement.VeilPlayerController
   moveSpeed: 5
-  remoteLerpSpeed: 15
   playerCamera: {fileID: 4014965708573372496}
   cameraRoot: {fileID: 5696472217886391020}
   mouseSensitivity: 0.1
@@ -175,7 +174,7 @@ MonoBehaviour:
   SyncScale: 0
   SyncParent: 0
   _autoAOIOverride: 1
-  DisableSharedModeInterpolation: 0
+  DisableSharedModeInterpolation: 1
 --- !u!1 &3740235883186509853
 GameObject:
   m_ObjectHideFlags: 0
