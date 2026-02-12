@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 8424350953563567967}
   - component: {fileID: 6696202573140391264}
   - component: {fileID: 1924534931963594132}
+  - component: {fileID: 6774897605533010471}
+  - component: {fileID: 2506266854203982866}
+  - component: {fileID: 589696336743868062}
   m_Layer: 0
   m_Name: Mob
   m_TagString: Untagged
@@ -112,3 +115,47 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6774897605533010471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6364373228186976549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef38282be5414d2d9ccfd498cf0ef341, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CodeBase._Prototype.Combat.Health
+  maxHealth: 1000
+--- !u!114 &2506266854203982866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6364373228186976549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0abe12967b9243ec9d7212f3afb698d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CodeBase._Prototype.Combat.EnemyHitFeedback
+  target: {fileID: 5890112350356784483}
+  scaleFactor: 0.9
+  scaleDuration: 0.1
+  targetRenderer: {fileID: 6696202573140391264}
+  hitColor: {r: 1, g: 0, b: 0, a: 1}
+  colorDuration: 0.2
+--- !u!114 &589696336743868062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6364373228186976549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41eaecb39b514891b065a2fc99d339d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CodeBase._Prototype.Combat.HitVFXSpawner
+  bloodImpactPrefab: {fileID: 6730850374346729032, guid: 49d06780a8f5842edb85bb4ce0545bd8, type: 3}

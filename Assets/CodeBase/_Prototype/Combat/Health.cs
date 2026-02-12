@@ -9,9 +9,12 @@ namespace CodeBase._Prototype.Combat
 
     float _current;
 
+    EnemyHitFeedback _hitFeedback;
+
     void Awake()
     {
       _current = maxHealth;
+      _hitFeedback = GetComponent<EnemyHitFeedback>();
     }
 
     public void TakeDamage(float amount)
@@ -20,6 +23,9 @@ namespace CodeBase._Prototype.Combat
         return;
 
       _current -= amount;
+      
+      _hitFeedback?.Play(); 
+
       if (_current <= 0f)
       {
         _current = 0f;

@@ -1,4 +1,5 @@
 // Assets/CodeBase/_Prototype/Movement/VeilPlayerController.cs
+using CodeBase._Prototype.CameraEffect;
 using Fusion;
 using UnityEngine;
 
@@ -28,15 +29,19 @@ namespace CodeBase._Prototype.Movement
 
     CharacterController _controller;
     VeilInputActions _input;
+
     Vector2 _moveInput;
     Vector2 _lookInput;
     bool _jumpPressed;
     bool _isSprinting;
     bool _isCrouching;
+
     float _pitch;
     float _yaw;
     float _verticalVelocity;
-    
+
+    CameraEffects _cameraEffects;
+
     float _standHeight;
     Vector3 _standCenter;
     float _standCameraY;
@@ -44,6 +49,9 @@ namespace CodeBase._Prototype.Movement
     public override void Spawned()
     {
       _controller = GetComponent<CharacterController>();
+      _cameraEffects = playerCamera != null
+        ? playerCamera.GetComponent<CameraEffects>()
+        : null;
 
       if (Object.HasInputAuthority)
       {
@@ -56,33 +64,29 @@ namespace CodeBase._Prototype.Movement
         _input = new VeilInputActions();
         _input.Player.Enable();
 
-        _input.Player.Move.performed   += ctx => _moveInput = ctx.ReadValue<Vector2>();
-        _input.Player.Move.canceled    += _ => _moveInput = Vector2.zero;
+        _input.Player.Move.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
+        _input.Player.Move.canceled += _ => _moveInput = Vector2.zero;
 
-        _input.Player.Look.performed   += ctx => _lookInput = ctx.ReadValue<Vector2>();
-        _input.Player.Look.canceled    += _ => _lookInput = Vector2.zero;
+        _input.Player.Look.performed += ctx => _lookInput = ctx.ReadValue<Vector2>();
+        _input.Player.Look.canceled += _ => _lookInput = Vector2.zero;
 
-        _input.Player.Jump.performed   += _ => _jumpPressed = true;
-
+        _input.Player.Jump.performed += _ => _jumpPressed = true;
         _input.Player.Sprint.performed += _ => _isSprinting = true;
-        _input.Player.Sprint.canceled  += _ => _isSprinting = false;
-
+        _input.Player.Sprint.canceled += _ => _isSprinting = false;
         _input.Player.Crouch.performed += _ => _isCrouching = !_isCrouching;
 
         Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible   = false;
+        Cursor.visible = false;
 
         Vector3 e = transform.eulerAngles;
-        _yaw   = e.y;
+        _yaw = e.y;
         _pitch = 0f;
-        
+
         _standHeight = _controller.height;
         _standCenter = _controller.center;
 
         if (cameraRoot != null)
-        {
           _standCameraY = cameraRoot.localPosition.y;
-        }
       }
       else
       {
@@ -109,38 +113,7 @@ namespace CodeBase._Prototype.Movement
       if (!Object.HasInputAuthority || _controller == null)
         return;
 
-      Quaternion yawRot = Quaternion.Euler(0f, _yaw, 0f);
-
-      Vector3 worldInput = new Vector3(_moveInput.x, 0f, _moveInput.y);
-      if (worldInput.sqrMagnitude > 1f)
-        worldInput.Normalize();
-
-      float speed = _isSprinting && !_isCrouching ? sprintSpeed : walkSpeed * (_isCrouching ? 0.5f : 1f);
-
-      Vector3 localMove = yawRot * worldInput;
-      Vector3 velocity  = localMove * speed;
-
-      if (_controller.isGrounded)
-      {
-        if (_verticalVelocity < 0f)
-          _verticalVelocity = -1f;
-
-        if (_jumpPressed && !_isCrouching)
-        {
-          _jumpPressed = false;
-          _verticalVelocity = Mathf.Sqrt(-2f * gravity * jumpHeight);
-        }
-      }
-      else
-      {
-        _verticalVelocity += gravity * Runner.DeltaTime;
-      }
-
-      velocity.y = _verticalVelocity;
-
-      _controller.Move(velocity * Runner.DeltaTime);
-
-      _jumpPressed = false;
+      HandleMovement();
     }
 
     void Update()
@@ -163,14 +136,55 @@ namespace CodeBase._Prototype.Movement
       transform.rotation = Quaternion.Euler(e);
     }
 
+    void HandleMovement()
+    {
+      Quaternion yawRot = Quaternion.Euler(0f, _yaw, 0f);
+      Vector3 worldInput = new Vector3(_moveInput.x, 0f, _moveInput.y);
+
+      float moveAmount = Mathf.Clamp01(worldInput.magnitude);
+
+      if (worldInput.sqrMagnitude > 1f)
+        worldInput.Normalize();
+
+      float speed = _isSprinting && !_isCrouching
+        ? sprintSpeed
+        : walkSpeed * (_isCrouching ? 0.5f : 1f);
+
+      Vector3 localMove = yawRot * worldInput;
+      Vector3 velocity = localMove * speed;
+
+      if (_controller.isGrounded)
+      {
+        if (_verticalVelocity < 0f)
+          _verticalVelocity = -1f;
+
+        if (_jumpPressed && !_isCrouching)
+        {
+          _jumpPressed = false;
+          _verticalVelocity = Mathf.Sqrt(-2f * gravity * jumpHeight);
+        }
+      }
+      else
+      {
+        _verticalVelocity += gravity * Runner.DeltaTime;
+      }
+
+      velocity.y = _verticalVelocity;
+      _controller.Move(velocity * Runner.DeltaTime);
+      _jumpPressed = false;
+      
+      if (_cameraEffects != null)
+        _cameraEffects.SetMoveAmount(moveAmount);
+    }
+
     void HandleLook()
     {
       float mouseX = _lookInput.x * mouseSensitivity;
       float mouseY = _lookInput.y * mouseSensitivity;
 
-      _yaw   += mouseX;
+      _yaw += mouseX;
       _pitch -= mouseY;
-      _pitch  = Mathf.Clamp(_pitch, minPitch, maxPitch);
+      _pitch = Mathf.Clamp(_pitch, minPitch, maxPitch);
     }
 
     void HandleCameraPitch()
@@ -189,12 +203,15 @@ namespace CodeBase._Prototype.Movement
         return;
 
       float targetHeight = _isCrouching ? _standHeight * crouchHeightFactor : _standHeight;
-      float targetCamY   = _isCrouching ? _standCameraY + crouchCameraOffset : _standCameraY;
+      float targetCamY = _isCrouching ? _standCameraY + crouchCameraOffset : _standCameraY;
 
       _controller.height = Mathf.Lerp(_controller.height, targetHeight, crouchLerpSpeed * Time.deltaTime);
 
       Vector3 center = _controller.center;
-      center.y = Mathf.Lerp(center.y, (_standCenter.y / _standHeight) * _controller.height, crouchLerpSpeed * Time.deltaTime);
+      center.y = Mathf.Lerp(
+        center.y,
+        (_standCenter.y / _standHeight) * _controller.height,
+        crouchLerpSpeed * Time.deltaTime);
       _controller.center = center;
 
       Vector3 camPos = cameraRoot.localPosition;
