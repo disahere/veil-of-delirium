@@ -8,7 +8,6 @@ namespace CodeBase._Prototype.Combat
     [SerializeField] float maxHealth = 100f;
 
     float _current;
-
     EnemyHitFeedback _hitFeedback;
 
     void Awake()
@@ -17,14 +16,20 @@ namespace CodeBase._Prototype.Combat
       _hitFeedback = GetComponent<EnemyHitFeedback>();
     }
 
+    public void SetMaxHealth(float value)
+    {
+      maxHealth = Mathf.Max(1f, value);
+      _current = maxHealth;
+    }
+
     public void TakeDamage(float amount)
     {
       if (_current <= 0f)
         return;
 
       _current -= amount;
-      
-      _hitFeedback?.Play(); 
+
+      _hitFeedback?.Play();
 
       if (_current <= 0f)
       {

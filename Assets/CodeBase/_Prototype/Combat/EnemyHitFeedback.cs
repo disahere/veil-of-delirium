@@ -1,4 +1,4 @@
-// Assets/CodeBase/Prototype/Combat/EnemyHitFeedback.cs
+// Assets/CodeBase/_Prototype/Combat/EnemyHitFeedback.cs
 using System.Collections;
 using UnityEngine;
 
@@ -8,7 +8,7 @@ namespace CodeBase._Prototype.Combat
   {
     [Header("Scale")]
     [SerializeField] Transform target;
-    [SerializeField] float scaleFactor = 0.9f; 
+    [SerializeField] float scaleFactor = 0.9f;
     [SerializeField] float scaleDuration = 0.1f;
 
     [Header("Color")]
@@ -31,6 +31,11 @@ namespace CodeBase._Prototype.Combat
         _originalColor = targetRenderer.material.color;
     }
 
+    public void SetHitColor(Color color)
+    {
+      hitColor = color;
+    }
+
     public void Play()
     {
       if (_routine != null)
@@ -46,16 +51,16 @@ namespace CodeBase._Prototype.Combat
       Vector3 hitScale = _originalScale * scaleFactor;
       if (targetRenderer != null)
         targetRenderer.material.color = hitColor;
-      
+
       while (t < 1f)
       {
         t += Time.deltaTime / Mathf.Max(scaleDuration, colorDuration);
 
-        float lerpScaleT = Mathf.Clamp01(t * (scaleDuration > 0f ? 1f : 0f));
-        float lerpColorT = Mathf.Clamp01(t * (colorDuration > 0f ? 1f : 0f));
+        float lerpScaleT = Mathf.Clamp01(t);
+        float lerpColorT = Mathf.Clamp01(t);
 
         target.localScale = Vector3.Lerp(hitScale, _originalScale, lerpScaleT);
-        
+
         if (targetRenderer != null)
         {
           Color c = Color.Lerp(hitColor, _originalColor, lerpColorT);
@@ -66,7 +71,6 @@ namespace CodeBase._Prototype.Combat
       }
 
       target.localScale = _originalScale;
-
       if (targetRenderer != null)
         targetRenderer.material.color = _originalColor;
 
