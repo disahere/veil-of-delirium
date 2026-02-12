@@ -192,7 +192,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f117bbeb53cb340da99d5930313d08fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VeilNetworkRunner
-  sessionName: VeilSession
   gameMode: 2
   playerPrefab: {fileID: 2042800683493080806, guid: 702fcdb2f7465444a922ffa6248b0da6, type: 3}
 --- !u!1660057539 &9223372036854775807
