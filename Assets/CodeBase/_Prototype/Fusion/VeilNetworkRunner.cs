@@ -11,6 +11,7 @@ namespace CodeBase._Prototype.Fusion
     [SerializeField] GameMode gameMode = GameMode.Shared;
     [Space]
     [SerializeField] NetworkObject playerPrefab;
+    [SerializeField] NetworkSceneManagerDefault sceneManager;
 
     readonly string _sessionName = "VeilSession";
     NetworkRunner _runner;
@@ -20,23 +21,22 @@ namespace CodeBase._Prototype.Fusion
       _runner = GetComponent<NetworkRunner>();
       _runner.ProvideInput = true;
       _runner.AddCallbacks(this);
-
-      await _runner.StartGame(new StartGameArgs
+      
+      var startArgs = new StartGameArgs
       {
         GameMode    = gameMode,
-        SessionName = _sessionName
-      });
-
-      if (_runner.IsSharedModeMasterClient)
-      {
-        _ = _runner.LoadScene(Constants.TestSceneName);
-      }
+        SessionName = _sessionName,
+        Scene       = SceneRef.FromIndex(Constants.TestSceneIndex),
+        SceneManager = sceneManager
+      };
+      
+      await _runner.StartGame(startArgs);
     }
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
       Debug.Log($"OnPlayerJoined {player}, LocalPlayer={runner.LocalPlayer}, IsServer={runner.IsServer}, IsMaster={runner.IsSharedModeMasterClient}");
-      
+
       if (player == runner.LocalPlayer)
       {
         Vector3 spawnPos = Vector3.zero;

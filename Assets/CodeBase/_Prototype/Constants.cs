@@ -16,7 +16,7 @@ namespace CodeBase._Prototype
     public const int BootstrapSceneIndex = 0;
     public const int MenuSceneIndex = 1;
     public const int HubSceneIndex = 2;
-    public const int TestSceneIndex = 3;
+    public const int TestSceneIndex = 1;
 
     #endregion
   }

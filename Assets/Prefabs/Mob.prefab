@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 927698839377866052}
   - component: {fileID: 2756526514061462316}
   - component: {fileID: 8534598520350899557}
+  - component: {fileID: 6969369847351904284}
   m_Layer: 0
   m_Name: Mob
   m_TagString: Untagged
@@ -173,3 +174,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CodeBase._Prototype.Combat.HitVFXSpawner
   bloodImpactPrefab: {fileID: 6730850374346729032, guid: 49d06780a8f5842edb85bb4ce0545bd8, type: 3}
+--- !u!114 &6969369847351904284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4831287726876580704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 1922977062
+  ObjectInterest: 1
+  Flags: 327681
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 2756526514061462316}
+  ForceRemoteRenderTimeframe: 0

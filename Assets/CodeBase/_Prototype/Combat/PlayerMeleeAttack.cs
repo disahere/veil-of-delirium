@@ -1,12 +1,14 @@
 // Assets/CodeBase/Prototype/Combat/PlayerMeleeAttack.cs
 using CodeBase._Prototype.CameraEffect;
+using CodeBase._Prototype.Enemies;
+using Fusion;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace CodeBase._Prototype.Combat
 {
-  public class PlayerMeleeAttack : MonoBehaviour
+  public class PlayerMeleeAttack : NetworkBehaviour
   {
     [Header("Refs")]
     [SerializeField] Camera playerCamera;
@@ -20,48 +22,57 @@ namespace CodeBase._Prototype.Combat
     float _pressStartTime;
     bool _isPressing;
 
-    void Awake()
+    public override void Spawned()
     {
-      _input = new VeilInputActions();
-      _attackAction = _input.Player.Attack;
-
-      _cameraEffects = playerCamera != null 
-        ? playerCamera.GetComponent<CameraEffects>() 
-        : null;
-      
-      if (chargeSlider != null)
+      if (Object.HasInputAuthority)
       {
-        chargeSlider.minValue = 0f;
-        chargeSlider.maxValue = 1f;
-        chargeSlider.value = 0f;
+        _input = new VeilInputActions();
+        _attackAction = _input.Player.Attack;
+
+        _cameraEffects = playerCamera != null
+          ? playerCamera.GetComponent<CameraEffects>()
+          : null;
+
+        if (chargeSlider != null)
+        {
+          chargeSlider.minValue = 0f;
+          chargeSlider.maxValue = 1f;
+          chargeSlider.value = 0f;
+        }
+
+        _input.Player.Enable();
+        _attackAction.started += OnAttackStarted;
+        _attackAction.canceled += OnAttackCanceled;
       }
     }
-
-    void OnEnable()
-    {
-      _input.Player.Enable();
-      _attackAction.started += OnAttackStarted;
-      _attackAction.canceled += OnAttackCanceled;
-    }
-
+    
     void OnDisable()
     {
-      _attackAction.started -= OnAttackStarted;
-      _attackAction.canceled -= OnAttackCanceled;
-      _input.Player.Disable();
+      if (_input != null)
+      {
+        _attackAction.started -= OnAttackStarted;
+        _attackAction.canceled -= OnAttackCanceled;
+        _input.Player.Disable();
+      }
     }
 
     void OnDestroy()
     {
-      _input.Dispose();
-      _input = null;
+      if (_input != null)
+      {
+        _input.Dispose();
+        _input = null;
+      }
     }
 
     void Update()
     {
+      if (!Object.HasInputAuthority)
+        return;
+
       if (!_isPressing || chargeSlider == null || weapon == null)
         return;
-      
+
       float duration = Time.time - _pressStartTime;
       float t = duration / weapon.ChargeThreshold;
       chargeSlider.value = Mathf.Clamp01(t);
@@ -69,6 +80,9 @@ namespace CodeBase._Prototype.Combat
 
     void OnAttackStarted(InputAction.CallbackContext ctx)
     {
+      if (!Object.HasInputAuthority)
+        return;
+
       _pressStartTime = Time.time;
       _isPressing = true;
 
@@ -78,6 +92,9 @@ namespace CodeBase._Prototype.Combat
 
     void OnAttackCanceled(InputAction.CallbackContext ctx)
     {
+      if (!Object.HasInputAuthority)
+        return;
+
       if (!_isPressing)
         return;
 
@@ -98,6 +115,9 @@ namespace CodeBase._Prototype.Combat
 
     void DoAttack(bool isHeavy)
     {
+      if (!Object.HasInputAuthority)
+        return;
+
       if (playerCamera == null)
         return;
 
@@ -109,18 +129,13 @@ namespace CodeBase._Prototype.Combat
 
       if (Physics.Raycast(origin, direction, out var hit, range))
       {
-        if (hit.collider.TryGetComponent<IDamageable>(out var damageable))
-          damageable.TakeDamage(damage);
-        
-        if (isHeavy)
+        if (hit.collider.TryGetComponent<Enemy>(out var enemy))
         {
-          var vfx = hit.collider.GetComponentInParent<HitVFXSpawner>();
-          if (vfx != null)
-            vfx.Spawn(hit.point, hit.normal);
+          enemy.ApplyMeleeHitRpc(damage, isHeavy, hit.point, hit.normal);
         }
       }
 
-      if (_cameraEffects != null)
+      if (_cameraEffects != null && _cameraEffects.isActiveAndEnabled)
       {
         if (isHeavy)
           _cameraEffects.PlayHeavyShake();

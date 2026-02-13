@@ -194,6 +194,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VeilNetworkRunner
   gameMode: 2
   playerPrefab: {fileID: 2042800683493080806, guid: 702fcdb2f7465444a922ffa6248b0da6, type: 3}
+  sceneManager: {fileID: 221575710}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

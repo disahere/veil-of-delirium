@@ -19,6 +19,15 @@ namespace CodeBase._Prototype.Combat
         Quaternion.LookRotation(hitNormal)
       );
       fx.Play();
+
+      var main = fx.main;
+      float life = main.duration;
+      if (main.startLifetime.mode == ParticleSystemCurveMode.TwoConstants)
+        life += main.startLifetime.constantMax;
+      else
+        life += main.startLifetime.constant;
+
+      Destroy(fx.gameObject, life);
     }
   }
 }
