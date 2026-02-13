@@ -26,6 +26,8 @@ namespace CodeBase._Prototype.Movement
     [SerializeField] float mouseSensitivity = 0.1f;
     [SerializeField] float minPitch = -80f;
     [SerializeField] float maxPitch = 80f;
+    
+    public Vector2 LookInput => _lookInput;
 
     CharacterController _controller;
     VeilInputActions _input;

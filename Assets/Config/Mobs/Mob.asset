@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e1c5eb22606c4576895a20a839d4ad5f, type: 3}
-  m_Name: Dummy
+  m_Name: Mob
   m_EditorClassIdentifier: Assembly-CSharp::CodeBase._Prototype.Enemies.EnemyConfig
   enemyType: 1
   maxHealth: 100
@@ -19,4 +19,4 @@ MonoBehaviour:
   attackRadius: 1.8
   damagePerHit: 10
   attacksPerSecond: 0.8
-  hitTintColor: {r: 1, g: 0.04843275, b: 0, a: 1}
+  hitTintColor: {r: 1, g: 0, b: 0, a: 1}
